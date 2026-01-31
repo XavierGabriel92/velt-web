@@ -1,26 +1,186 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #ff6600;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #ff6600;
+  --chart-1: #7449ca;
+  --chart-2: #16a34a;
+  --chart-3: #facc15;
+  --chart-4: #18181b;
+  --chart-5: #e75436;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #7449ca;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #7449ca;
+  --font-sans: Inter;
+  --font-serif: Georgia;
+  --font-mono: Menlo;
+  --radius: 1rem;
+  --shadow-x: 0rem;
+  --shadow-y: 0.05rem;
+  --shadow-blur: 0.1rem;
+  --shadow-spread: 0rem;
+  --shadow-opacity: 0.25;
+  --shadow-color: hsl(0 0% 0%);
+  --shadow-2xs: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.13);
+  --shadow-xs: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.13);
+  --shadow-sm: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.25), 0rem 1px 2px -1px hsl(0 0% 0% / 0.25);
+  --shadow: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.25), 0rem 1px 2px -1px hsl(0 0% 0% / 0.25);
+  --shadow-md: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.25), 0rem 2px 4px -1px hsl(0 0% 0% / 0.25);
+  --shadow-lg: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.25), 0rem 4px 6px -1px hsl(0 0% 0% / 0.25);
+  --shadow-xl: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.25), 0rem 8px 10px -1px hsl(0 0% 0% / 0.25);
+  --shadow-2xl: 0rem 0.05rem 0.1rem 0rem hsl(0 0% 0% / 0.63);
+  --tracking-normal: 0rem;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #0f172a;
+  --card-foreground: #f1f5f9;
+  --popover: #0f172a;
+  --popover-foreground: #f1f5f9;
+  --primary: #7449ca;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f1f5f9;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #7449ca;
+  --chart-1: #7449ca;
+  --chart-2: #16a34a;
+  --chart-3: #facc15;
+  --chart-4: #18181b;
+  --chart-5: #e75436;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #7449ca;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #7449ca;
+  --font-sans: Inter;
+  --font-serif: Georgia;
+  --font-mono: Menlo;
+  --radius: 1rem;
+  --shadow-x: 0rem;
+  --shadow-y: 0.1rem;
+  --shadow-blur: 0.2rem;
+  --shadow-spread: 0rem;
+  --shadow-opacity: 0.25;
+  --shadow-color: hsl(0 0% 0%);
+  --shadow-2xs: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.13);
+  --shadow-xs: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.13);
+  --shadow-sm: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.25), 0rem 1px 2px -1px hsl(0 0% 0% / 0.25);
+  --shadow: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.25), 0rem 1px 2px -1px hsl(0 0% 0% / 0.25);
+  --shadow-md: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.25), 0rem 2px 4px -1px hsl(0 0% 0% / 0.25);
+  --shadow-lg: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.25), 0rem 4px 6px -1px hsl(0 0% 0% / 0.25);
+  --shadow-xl: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.25), 0rem 8px 10px -1px hsl(0 0% 0% / 0.25);
+  --shadow-2xl: 0rem 0.1rem 0.2rem 0rem hsl(0 0% 0% / 0.63);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: var(--tracking-normal);
+  font-family: var(--font-sans), sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
