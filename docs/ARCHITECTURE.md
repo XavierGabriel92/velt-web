@@ -200,6 +200,86 @@ Crie um componente de domínio (`domain/[feature]/components/`) quando:
 - Compõe componentes base para criar uma feature específica
 - Contém lógica de negócio do domínio
 
+### Critérios para `components/ui/` vs `components/shared/`
+
+Uma distinção importante é saber quando criar um componente em `components/ui/` (componentes primitivos base) versus `components/shared/` (componentes que compõem componentes base e são compartilhados).
+
+#### Use `components/ui/` quando:
+
+- É um componente **primitivo base** (Button, Card, Input, Label, Checkbox, etc.)
+- Vem do **shadcn/ui** ou é um componente atômico
+- **NÃO compõe** outros componentes da UI
+- Precisa de **variantes e estilização base completa**
+- É um **building block fundamental** da interface
+- Contém toda a estilização e comportamento primitivo
+
+**Exemplos:**
+- `Button` - componente primitivo com variantes (default, outline, ghost, etc.)
+- `Card` - componente primitivo com sub-componentes (CardHeader, CardContent, etc.)
+- `Input` - componente primitivo de entrada de dados
+- `Label` - componente primitivo de rótulo
+
+#### Use `components/shared/` quando:
+
+- O componente **compõe componentes base da UI** (usa Card, Button, etc.)
+- É **compartilhado entre múltiplos domínios**
+- Tem **lógica de composição** mas não é específico de um domínio
+- Reutiliza componentes de `components/ui/` para criar padrões comuns
+- Não contém lógica de negócio específica de um domínio
+
+**Exemplos:**
+- `MetricCard` - compõe `Card` da UI para criar um padrão de card de métricas
+- `QuickActionButton` - compõe `Card` + `Button` da UI para criar botões de ação rápida
+- `ListWithButton` - compõe `Card` + `Button` da UI para criar listas com CTA
+- `DashboardHeader` - compõe múltiplos componentes base para criar o header do dashboard
+
+#### Use `domain/[domain]/components/` quando:
+
+- O componente é **específico de um domínio de negócio**
+- Contém **lógica de negócio do domínio**
+- **NÃO é compartilhado** entre domínios diferentes
+- Usa componentes de `components/ui/` ou `components/shared/` para criar features específicas
+
+**Exemplos:**
+- `FlightsMetricCard` - card específico de métricas de voos (usa `MetricCard` de shared)
+- `UpcomingTravelsList` - lista específica de viagens (usa `ListWithButton` de shared)
+- `LoginForm` - formulário específico de login (usa componentes base da UI)
+
+#### Fluxo de Decisão
+
+```
+Precisa criar um novo componente?
+│
+├─ É um componente primitivo base (Button, Input, Card)?
+│  └─ Sim → `components/ui/`
+│
+├─ Compõe componentes base e é compartilhado entre domínios?
+│  └─ Sim → `components/shared/`
+│
+└─ É específico de um domínio de negócio?
+   └─ Sim → `domain/[domain]/components/`
+```
+
+#### Exemplos Práticos do Projeto
+
+**`components/ui/button.tsx`**
+- Componente primitivo base
+- Vem do shadcn/ui
+- Não compõe outros componentes
+- Tem variantes (default, outline, ghost, etc.)
+
+**`components/shared/metric-card.tsx`**
+- Compõe `Card` de `components/ui/`
+- Compartilhado entre domínios (travels, expenses, analytics, rewards)
+- Não contém lógica de negócio específica
+- Apenas composição e padrão visual
+
+**`domain/travels/components/flights-metric-card.tsx`**
+- Específico do domínio travels
+- Usa `MetricCard` de `components/shared/`
+- Contém lógica de negócio (busca métricas de voos)
+- Não é compartilhado com outros domínios
+
 ---
 
 ## Gerenciamento de Estado e API
@@ -212,6 +292,93 @@ O projeto usa **TanStack Query** para gerenciar estado de servidor, cache e sinc
 - Provider configurado em `app/layout.tsx`
 - Cliente singleton para evitar múltiplas instâncias
 - Configurado em `lib/query-client.tsx`
+
+### Suspense para Loading States
+
+O projeto usa **Suspense** do React junto com **TanStack Query** para gerenciar estados de loading de forma declarativa e granular.
+
+**Diretrizes:**
+
+1. **Use `useSuspenseQuery` ao invés de `useQuery`** quando o componente será envolvido em um Suspense boundary:
+   ```tsx
+   // ✅ CORRETO - Com Suspense
+   import { useSuspenseQuery } from "@tanstack/react-query"
+   
+   export function useFlightsMetrics() {
+     return useSuspenseQuery({
+       queryKey: ["flights-metrics"],
+       queryFn: getFlightsMetrics,
+     })
+   }
+   ```
+
+2. **NÃO verifique `isLoading` manualmente** - o Suspense cuida disso:
+   ```tsx
+   // ❌ ERRADO - Verificação manual de isLoading
+   const { data, isLoading } = useQuery(...)
+   if (isLoading) return <Loading />
+   
+   // ✅ CORRETO - Suspense cuida do loading
+   const { data } = useSuspenseQuery(...)
+   // data sempre está disponível aqui
+   ```
+
+3. **Envolva componentes que fazem fetch em Suspense boundaries** na página:
+   ```tsx
+   import { Suspense } from "react"
+   import { MetricCardSkeleton } from "@/components/shared/metric-card-skeleton"
+   
+   <Suspense fallback={<MetricCardSkeleton title="..." icon={Icon} />}>
+     <FlightsMetricCard />
+   </Suspense>
+   ```
+
+4. **Use componentes skeleton como fallback** - crie skeletons específicos para cada tipo de componente:
+   - `MetricCardSkeleton` - para cards de métricas
+   - `ListSkeleton` - para listas
+   - `QuickActionSkeleton` - para ações rápidas
+   - Use o componente `Loading` (`components/ui/loading.tsx`) dentro dos skeletons quando apropriado
+
+5. **Benefícios:**
+   - Código mais limpo (sem verificações de `isLoading`)
+   - Loading granular por seção
+   - Melhor UX com carregamento progressivo
+   - Alinhado com padrões do Next.js App Router
+
+**Exemplo Completo:**
+
+```tsx
+// domain/travels/api/use-flights-metrics.ts
+import { useSuspenseQuery } from "@tanstack/react-query"
+
+export function useFlightsMetrics() {
+  return useSuspenseQuery({
+    queryKey: ["flights-metrics"],
+    queryFn: getFlightsMetrics,
+  })
+}
+
+// domain/travels/components/flights-metric-card.tsx
+export function FlightsMetricCard() {
+  const { data } = useFlightsMetrics() // Sem verificação de isLoading
+  
+  return (
+    <MetricCard
+      title="Voos este mês"
+      value={data.currentMonth.toString()}
+      // ...
+    />
+  )
+}
+
+// app/inicio/page.tsx
+import { Suspense } from "react"
+import { MetricCardSkeleton } from "@/components/shared/metric-card-skeleton"
+
+<Suspense fallback={<MetricCardSkeleton title="Voos este mês" icon={Plane} />}>
+  <FlightsMetricCard />
+</Suspense>
+```
 
 ### Cliente HTTP (`lib/api.ts`)
 
