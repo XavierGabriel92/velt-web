@@ -14,18 +14,14 @@ import { MetricCardSkeleton } from "@/components/shared/metric-card-skeleton"
 import { ListSkeleton } from "@/components/shared/list-skeleton"
 import { QuickActionSkeleton } from "@/components/shared/quick-action-skeleton"
 import { Plane, TrendingUp, Wallet, Star } from "lucide-react"
-import { getAuthUser } from "@/lib/auth"
+import { useAuth } from "@/lib/auth-context"
 import { useEffect, useState } from "react"
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
+  const { user } = useAuth()
   const [currentDate, setCurrentDate] = useState("")
 
   useEffect(() => {
-    const authUser = getAuthUser()
-    setUser(authUser)
-
-    // Formatar data atual
     const date = new Date()
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long",
@@ -33,8 +29,7 @@ export default function Dashboard() {
       month: "long",
       year: "numeric",
     }
-    const formattedDate = date.toLocaleDateString("pt-BR", options)
-    setCurrentDate(formattedDate.toUpperCase())
+    setCurrentDate(date.toLocaleDateString("pt-BR", options).toUpperCase())
   }, [])
 
   const getUserName = () => {
@@ -61,7 +56,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metrics Cards */}
+        {/* Metrics Cards */}{/*"e"
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Suspense fallback={<MetricCardSkeleton title="Voos este mês" icon={Plane} />}>
             <FlightsMetricCard />
@@ -75,7 +70,7 @@ export default function Dashboard() {
           <Suspense fallback={<MetricCardSkeleton title="Pontos acumulados" icon={Star} />}>
             <PointsMetricCard />
           </Suspense>
-        </div>
+        </div> */}
 
         {/* Quick Actions */}
         <div className="mb-8">

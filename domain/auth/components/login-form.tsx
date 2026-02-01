@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { InputMask } from "@/components/ui/input-mask"
 import { useLogin } from "../api/use-login"
+import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -50,6 +51,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
   const router = useRouter()
+  const { refreshFromStorage } = useAuth()
 
   const loginMutation = useLogin()
 
@@ -82,12 +84,12 @@ export function LoginForm() {
         password: data.password,
       })
 
-      // Mostrar toast de sucesso
+      refreshFromStorage()
+
       toast.success("Login realizado com sucesso!", {
         description: `Bem-vindo, ${response.firstName}!`,
       })
 
-      // Redirecionar após um pequeno delay para o usuário ver o toast
       setTimeout(() => {
         router.push("/inicio")
       }, 500)

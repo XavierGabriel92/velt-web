@@ -1,18 +1,15 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Logo } from "@/components/shared/logo"
 import { Button } from "@/components/ui/button"
-import { getAuthUser } from "@/lib/auth"
+import { CompanySelector } from "@/components/shared/company-selector"
+import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 
 export function DashboardHeader() {
-  const [user, setUser] = React.useState<any>(null)
-
-  React.useEffect(() => {
-    const authUser = getAuthUser()
-    setUser(authUser)
-  }, [])
+  const { user, logout } = useAuth()
 
   const getUserInitials = () => {
     if (!user) return "U"
@@ -48,20 +45,29 @@ export function DashboardHeader() {
                   "rounded-full",
                   item.label === "Início" && "bg-primary text-primary-foreground"
                 )}
-                onClick={() => {
-                  // Placeholder - não faz nada por enquanto
-                }}
+                asChild
               >
-                {item.label}
+                <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
 
-          {/* User Avatar */}
-          <div className="shrink-0">
-            <div className="size-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-              {getUserInitials()}
-            </div>
+          {/* Company Selector + User */}
+          <div className="flex shrink-0 items-center gap-3">
+            <CompanySelector />
+            {user && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {user.firstName} {user.lastName}
+                </span>
+                <Button variant="ghost" size="sm" onClick={logout}>
+                  Sair
+                </Button>
+                <div className="size-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                  {getUserInitials()}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
