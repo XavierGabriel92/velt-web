@@ -8,10 +8,14 @@ export interface ListWithButtonProps<T> {
   title: string
   items: T[]
   renderItem: (item: T, index: number) => React.ReactNode
+  /** Extrai chave estável do item para o React (melhor que index) */
+  getItemKey?: (item: T, index: number) => string | number
   buttonText: string
   onButtonClick?: () => void
   headerBadge?: number | string
   headerIcon?: LucideIcon
+  /** Conteúdo extra no header (ex: seletor de mock) */
+  headerExtra?: React.ReactNode
   className?: string
   emptyMessage?: string
 }
@@ -20,24 +24,29 @@ export function ListWithButton<T>({
   title,
   items,
   renderItem,
+  getItemKey,
   buttonText,
   onButtonClick,
   headerBadge,
+  headerExtra,
   className,
   emptyMessage = "Nenhum item encontrado",
 }: ListWithButtonProps<T>) {
   return (
     <Card className={cn("flex flex-col", className)}>
       <CardHeader className="border-b">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-          {headerBadge !== undefined && (
+          <div className="flex items-center gap-2">
+            {headerBadge !== undefined && (
             <span className="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full">
               {typeof headerBadge === "number" 
                 ? `${headerBadge} ${headerBadge === 1 ? "pendente" : "pendentes"}`
                 : headerBadge}
             </span>
           )}
+            {headerExtra}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex-1">
@@ -48,7 +57,7 @@ export function ListWithButton<T>({
         ) : (
           <div className="space-y-3">
             {items.map((item, index) => (
-              <div key={index}>{renderItem(item, index)}</div>
+              <div key={getItemKey?.(item, index) ?? index}>{renderItem(item, index)}</div>
             ))}
           </div>
         )}
