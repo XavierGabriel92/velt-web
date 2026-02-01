@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Logo } from "@/components/shared/logo"
 import { Button } from "@/components/ui/button"
 import { CompanySelector } from "@/components/shared/company-selector"
@@ -9,6 +10,7 @@ import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 
 export function DashboardHeader() {
+  const pathname = usePathname()
   const { user, logout } = useAuth()
 
   const getUserInitials = () => {
@@ -20,7 +22,7 @@ export function DashboardHeader() {
 
   const navItems = [
     { label: "Início", href: "/inicio" },
-    { label: "Viagens", href: "#" },
+    { label: "Viagens", href: "/inicio/viagens" },
     { label: "Aprovações", href: "#" },
     { label: "Despesas", href: "#" },
     { label: "Gestão", href: "#" },
@@ -37,19 +39,28 @@ export function DashboardHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-2">
-            {navItems.map((item) => (
-              <Button
-                key={item.label}
-                variant="ghost"
-                className={cn(
-                  "rounded-full",
-                  item.label === "Início" && "bg-primary text-primary-foreground"
-                )}
-                asChild
-              >
-                <Link href={item.href}>{item.label}</Link>
-              </Button>
-            ))}
+            {navItems.map((item) => {
+              const isActive =
+                item.href !== "#" &&
+                (item.href === "/inicio"
+                  ? pathname === "/inicio"
+                  : item.href === "/inicio/viagens"
+                    ? pathname.startsWith("/inicio/viagens")
+                    : pathname.startsWith(item.href))
+              return (
+                <Button
+                  key={item.label}
+                  variant="ghost"
+                  className={cn(
+                    "rounded-full",
+                    isActive && "bg-primary text-primary-foreground"
+                  )}
+                  asChild
+                >
+                  <Link href={item.href}>{item.label}</Link>
+                </Button>
+              )
+            })}
           </nav>
 
           {/* Company Selector + User */}

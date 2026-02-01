@@ -49,3 +49,32 @@ export interface FlightsMetrics {
   changeType: "positive" | "negative"
 }
 
+// Flight search types
+export type TripType = "RoundTrip" | "OneWay"
+export type CabinClass = "Economy" | "Business"
+
+export interface FlightSearchParams {
+  origin: string
+  destination: string
+  departureDate: string
+  returnDate?: string
+  tripType: TripType
+  adults: number
+  children?: number
+  infants?: number
+  cabinClass: CabinClass
+  travelerIds?: string[]
+}
+
+export interface Traveler {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+}
+
+export interface LastFlightSearch extends FlightSearchParams {
+  travelerNames?: string
+  createdAt: string
+}
+
