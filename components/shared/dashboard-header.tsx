@@ -23,7 +23,7 @@ export function DashboardHeader() {
   const navItems = [
     { label: "Início", href: "/inicio" },
     { label: "Viagens", href: "/inicio/viagens" },
-    { label: "Aprovações", href: "#" },
+    { label: "Aprovações", href: "/inicio/aprovacoes" },
     { label: "Despesas", href: "/inicio/despesas" },
     { label: "Gestão", href: "#" },
   ]

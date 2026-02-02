@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useSearchParams } from "next/navigation"
 import { QuickActionButton } from "@/components/shared/quick-action-button"
 import { usePendingApprovals } from "../api/use-pending-approvals"
@@ -8,6 +9,7 @@ import { CheckCircle2 } from "lucide-react"
 import type { MockScenarioId } from "../api/mock-pending-approvals"
 
 export function ReviewApprovalsAction() {
+  const router = useRouter()
   const { user, selectedCompany } = useAuth()
   const searchParams = useSearchParams()
   const userId = user?.userId ?? ""
@@ -24,7 +26,7 @@ export function ReviewApprovalsAction() {
     0
 
   const handleClick = () => {
-    // Placeholder - navegação para página de aprovações futura
+    router.push("/inicio/aprovacoes")
   }
 
   return (

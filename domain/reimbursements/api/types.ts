@@ -21,4 +21,12 @@ export interface ReimbursementRequestResponse {
   expenseDescription?: string
   /** Preenchido quando a listagem inclui a despesa (ex.: listagem por usuário). */
   expenseAmount?: number
+  /** ID do solicitante. Preenchido na listagem para aprovador. */
+  requesterUserId?: string
+  /** Nome do solicitante. Preenchido na listagem para aprovador. */
+  requesterUserName?: string
+  /** ID do TravelReport que contém a despesa, quando aplicável. */
+  travelReportId?: string
+  /** Título do TravelReport, quando aplicável. */
+  travelReportTitle?: string
 }
