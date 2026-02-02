@@ -6,10 +6,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useTravelReportsUpcoming } from "../api/use-travel-reports"
+import { useTravelReportsUpcoming } from "@/domain/travel-reports/api/use-travel-reports"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import type { TravelReportResponse } from "../api/types"
+import type { TravelReportResponse } from "@/domain/travel-reports/api/types"
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("pt-BR", {

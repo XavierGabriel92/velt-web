@@ -18,4 +18,6 @@ export interface LoginRequest {
     companyId: string
     companyName: string
     roles: string[]
+    /** Se false, empresa opera pré-pago (PreEmission); se true, faturado (PostEmission). B2C sempre pré-pago. */
+    usaFaturamento?: boolean
   }
