@@ -9,6 +9,37 @@ import type {
   PagedResult,
 } from "./types"
 
+function mapTravelReportFromApi(raw: Record<string, unknown>): TravelReportResponse {
+  return {
+    id: (raw.id ?? raw.Id) as string,
+    companyId: (raw.companyId ?? raw.CompanyId) as string,
+    companyName: (raw.companyName ?? raw.CompanyName) as string,
+    title: (raw.title ?? raw.Title) as string,
+    description: (raw.description ?? raw.Description) as string | undefined,
+    reason: (raw.reason ?? raw.Reason) as string | undefined,
+    startDate: (raw.startDate ?? raw.StartDate) as string,
+    endDate: (raw.endDate ?? raw.EndDate) as string,
+    travelIds: (raw.travelIds ?? raw.TravelIds ?? []) as string[],
+    expenseIds: (raw.expenseIds ?? raw.ExpenseIds ?? []) as string[],
+    createdByUserId: (raw.createdByUserId ?? raw.CreatedByUserId) as string,
+    createdByUserName: (raw.createdByUserName ?? raw.CreatedByUserName) as string,
+    travelsCount: Number(raw.travelsCount ?? raw.TravelsCount ?? 0),
+    expensesCount: Number(raw.expensesCount ?? raw.ExpensesCount ?? 0),
+    createdAt: (raw.createdAt ?? raw.CreatedAt) as string,
+    updatedAt: (raw.updatedAt ?? raw.UpdatedAt) as string,
+    firstTravelerName: (raw.firstTravelerName ?? raw.FirstTravelerName) as string | undefined,
+    otherTravelersCount: (raw.otherTravelersCount ?? raw.OtherTravelersCount) as number | undefined,
+    travelerNames: (raw.travelerNames ?? raw.TravelerNames) as string[] | undefined,
+  }
+}
+
+async function fetchTravelReportById(id: string): Promise<TravelReportResponse> {
+  const raw = await apiRequest<Record<string, unknown>>(
+    `/api/travel-reports/${encodeURIComponent(id)}`
+  )
+  return mapTravelReportFromApi(raw ?? {})
+}
+
 async function fetchAvailableTravelReports(
   companyId: string
 ): Promise<TravelReportResponse[]> {
@@ -32,8 +63,27 @@ async function fetchTravelReports(
   if (filter?.pageSize) params.append("pageSize", filter.pageSize.toString())
   const queryString = params.toString()
   const endpoint = `/api/travel-reports${queryString ? `?${queryString}` : ""}`
-  const data = await apiRequest<PagedResult<TravelReportResponse>>(endpoint)
-  return data?.items ?? []
+  const data = await apiRequest<Record<string, unknown>>(endpoint)
+  const items = (data?.items ?? data?.Items ?? []) as Record<string, unknown>[]
+  return Array.isArray(items) ? items.map(mapTravelReportFromApi) : []
+}
+
+/** Obtém um relatório de viagem por ID (detalhe da página Minhas Viagens) */
+export function useTravelReportById(id: string | null) {
+  return useQuery({
+    queryKey: ["travel-report", id],
+    queryFn: () => fetchTravelReportById(id!),
+    enabled: !!id,
+  })
+}
+
+/** Lista relatórios de viagem (para aba Minhas Viagens) */
+export function useTravelReportsList(filter?: TravelReportFilterRequest) {
+  return useQuery({
+    queryKey: ["travel-reports", "list", filter],
+    queryFn: () => fetchTravelReports(filter),
+    enabled: !!filter?.companyId,
+  })
 }
 
 /** Hook for travel reports available for selection (e.g. in booking form) */

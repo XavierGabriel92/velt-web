@@ -47,6 +47,7 @@ async function confirmFlight(
         validationViolations: (d.validationViolations ?? d.ValidationViolations) as
           | string[]
           | undefined,
+        travelReportId: (d.travelReportId ?? d.TravelReportId) as string | undefined,
       },
     }
   }

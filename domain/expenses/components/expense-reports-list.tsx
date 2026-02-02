@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useTravelReportsList } from "@/domain/travel-reports/api/use-travel-reports"
 import { useExpenses } from "../api/use-expenses"
 import { useCreateReimbursementRequest } from "@/domain/reimbursements/api/use-create-reimbursement-request"
+import { useReimbursementRequestsQuery } from "@/domain/reimbursements/api/use-reimbursement-requests"
 import { ChevronDown, ChevronRight, Calendar, Receipt, Pencil, Trash2, Banknote } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -62,6 +63,7 @@ function getReimburseToUserId(expense: ExpenseResponse): string {
 function ExpenseTableRow({
   expense,
   currentUserId,
+  hasExistingReimbursementRequest,
   onEdit,
   onDelete,
   onUploadReceipt,
@@ -69,6 +71,8 @@ function ExpenseTableRow({
 }: {
   expense: ExpenseResponse
   currentUserId?: string | null
+  /** Despesa já possui solicitação de reembolso (pendente, aprovada ou rejeitada). */
+  hasExistingReimbursementRequest?: boolean
   onEdit?: (expense: ExpenseResponse) => void
   onDelete?: (expenseId: string) => void | Promise<void>
   onUploadReceipt?: (expenseId: string) => void
@@ -76,23 +80,29 @@ function ExpenseTableRow({
 }) {
   const hasReceipt = !!expense.comprovantesPath
   const canRequestReimbursement =
-    currentUserId && getReimburseToUserId(expense) === currentUserId && onRequestReimbursement
+    currentUserId &&
+    getReimburseToUserId(expense) === currentUserId &&
+    hasReceipt &&
+    !hasExistingReimbursementRequest &&
+    onRequestReimbursement
 
   return (
     <tr className="border-b last:border-0 hover:bg-muted/30">
       <td className="py-2 px-3 text-sm">{expenseTypeLabel(expense)}</td>
-      <td className="py-2 px-3 text-sm">{expense.description || "—"}</td>
+      <td className="py-2 px-3 text-sm" title={expense.description ? undefined : "Sem descrição"}>
+        {expense.description || "—"}
+      </td>
       <td className="py-2 px-3 text-sm">{formatDateShort(expense.expenseDate)}</td>
       <td className="py-2 px-3 text-sm">{formatCurrency(expense.valor)}</td>
       <td className="py-2 px-3">
         <span
-          className={cn(
-            "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-            hasReceipt ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-          )}
-        >
-          {hasReceipt ? "Sim" : "Não"}
-        </span>
+            className={cn(
+              "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+              hasReceipt ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+            )}
+          >
+            {hasReceipt ? "Com comprovante" : "Sem comprovante"}
+          </span>
       </td>
       <td className="py-2 px-3">
         <div className="flex items-center gap-1 flex-wrap">
@@ -100,7 +110,7 @@ function ExpenseTableRow({
             <button
               type="button"
               className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-              title="Editar"
+              title="Editar despesa"
               onClick={() => onEdit(expense)}
             >
               <Pencil className="size-4" />
@@ -110,7 +120,7 @@ function ExpenseTableRow({
             <button
               type="button"
               className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-destructive"
-              title="Excluir"
+              title="Excluir despesa"
               onClick={() => onDelete(expense.id)}
             >
               <Trash2 className="size-4" />
@@ -121,19 +131,20 @@ function ExpenseTableRow({
               type="button"
               onClick={() => onUploadReceipt(expense.id)}
               className="text-xs text-primary hover:underline"
+              title="Anexar comprovante a esta despesa"
             >
-              Anexar
+              Anexar comprovante
             </button>
           )}
           {canRequestReimbursement && (
             <button
               type="button"
               className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
-              title="Solicitar reembolso"
+              title="Solicitar reembolso desta despesa"
               onClick={() => onRequestReimbursement(expense)}
             >
-              <Banknote className="size-4" />
-              Reembolso
+              <Banknote className="size-4 shrink-0" />
+              Solicitar reembolso
             </button>
           )}
         </div>
@@ -159,6 +170,10 @@ export function ExpenseReportsList({
   const [expenseForReimbursement, setExpenseForReimbursement] = useState<ExpenseResponse | null>(null)
   const [declaredPaidWithPersonalFunds, setDeclaredPaidWithPersonalFunds] = useState(false)
   const createReimbursementRequest = useCreateReimbursementRequest()
+  const { data: reimbursementRequests = [] } = useReimbursementRequestsQuery()
+  const expenseIdsWithReimbursementRequest = new Set(
+    reimbursementRequests.map((r) => r.expenseId)
+  )
 
   const { data: reports = [], isLoading: reportsLoading } = useTravelReportsList({
     companyId: companyId ?? undefined,
@@ -269,18 +284,18 @@ export function ExpenseReportsList({
             {isExpanded && (
               <div className="border-t bg-muted/20 px-4 pb-4 pt-2">
                 <p className="text-sm font-medium text-muted-foreground mb-3">
-                  Despesas deste Relatório
+                  Despesas vinculadas a este relatório
                 </p>
                 {hasExpenses ? (
                   <div className="overflow-x-auto rounded-md border bg-card">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
-                          <th className="py-2 px-3 text-left font-medium">Tipo</th>
+                          <th className="py-2 px-3 text-left font-medium">Categoria</th>
                           <th className="py-2 px-3 text-left font-medium">Descrição</th>
-                          <th className="py-2 px-3 text-left font-medium">Data</th>
+                          <th className="py-2 px-3 text-left font-medium">Data da despesa</th>
                           <th className="py-2 px-3 text-left font-medium">Valor</th>
-                          <th className="py-2 px-3 text-left font-medium">Comprovante</th>
+                          <th className="py-2 px-3 text-left font-medium">Comprovante anexado</th>
                           <th className="py-2 px-3 text-left font-medium">Ações</th>
                         </tr>
                       </thead>
@@ -290,6 +305,7 @@ export function ExpenseReportsList({
                             key={expense.id}
                             expense={expense}
                             currentUserId={user?.userId}
+                            hasExistingReimbursementRequest={expenseIdsWithReimbursementRequest.has(expense.id)}
                             onEdit={onEdit}
                             onDelete={onDelete}
                             onUploadReceipt={onUploadReceipt}
@@ -355,9 +371,17 @@ export function ExpenseReportsList({
               Cancelar
             </Button>
             <Button
-              disabled={!expenseForReimbursement || createReimbursementRequest.isPending}
+              disabled={
+                !expenseForReimbursement ||
+                !expenseForReimbursement.comprovantesPath ||
+                createReimbursementRequest.isPending
+              }
               onClick={async () => {
                 if (!expenseForReimbursement) return
+                if (!expenseForReimbursement.comprovantesPath) {
+                  toast.error("Anexe um comprovante à despesa antes de solicitar reembolso.")
+                  return
+                }
                 try {
                   await createReimbursementRequest.mutateAsync({
                     expenseId: expenseForReimbursement.id,

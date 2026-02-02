@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { ListWithButton } from "@/components/shared/list-with-button"
 import {
   Tooltip,
@@ -28,11 +29,12 @@ function getStatus(report: TravelReportResponse): "Em andamento" | "Futura" {
 }
 
 export function UpcomingTravelsList() {
+  const router = useRouter()
   const { selectedCompany } = useAuth()
   const { data: reports } = useTravelReportsUpcoming()
 
   const handleButtonClick = () => {
-    // Placeholder - não faz nada por enquanto
+    router.push("/inicio/viagens?tab=minhas")
   }
 
   const emptyMessage = !selectedCompany?.companyId

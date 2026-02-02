@@ -24,7 +24,7 @@ export function DashboardHeader() {
     { label: "Início", href: "/inicio" },
     { label: "Viagens", href: "/inicio/viagens" },
     { label: "Aprovações", href: "#" },
-    { label: "Despesas", href: "#" },
+    { label: "Despesas", href: "/inicio/despesas" },
     { label: "Gestão", href: "#" },
   ]
 
@@ -44,9 +44,7 @@ export function DashboardHeader() {
                 item.href !== "#" &&
                 (item.href === "/inicio"
                   ? pathname === "/inicio"
-                  : item.href === "/inicio/viagens"
-                    ? pathname.startsWith("/inicio/viagens")
-                    : pathname.startsWith(item.href))
+                  : pathname.startsWith(item.href))
               return (
                 <Button
                   key={item.label}

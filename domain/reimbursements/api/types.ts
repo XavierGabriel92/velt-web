@@ -16,5 +16,9 @@ export interface ReimbursementRequestResponse {
   approvedAt?: string
   declaredPaidWithPersonalFunds: boolean
   createdAt: string
-  updatedAt: string
+  updatedAt?: string
+  /** Preenchido quando a listagem inclui a despesa (ex.: listagem por usuário). */
+  expenseDescription?: string
+  /** Preenchido quando a listagem inclui a despesa (ex.: listagem por usuário). */
+  expenseAmount?: number
 }

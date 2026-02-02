@@ -151,6 +151,8 @@ export interface ConfirmFlightResponse {
   status: string
   requiresApproval: boolean
   validationViolations?: string[]
+  /** ID do TravelReport (para redirecionamento em "Minhas Viagens") */
+  travelReportId?: string
 }
 
 /** B2C: API returns payment initiation instead of Travel */
@@ -194,5 +196,59 @@ export interface PolicyValidationResultDto {
   requiresSecondLevel?: boolean
   policyId?: string
   policyName?: string
+}
+
+// Travel (solicitação) - GET /api/travels/{id} e listagem por relatório
+export interface TravelResponse {
+  id: string
+  userId: string
+  userName: string
+  userEmail: string
+  companyId: string
+  companyName: string
+  status: string
+  title: string
+  description?: string
+  travelReportId?: string
+  travelReport?: TravelReportSummary
+  items: TravelItemResponse[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TravelReportSummary {
+  id: string
+  title: string
+  startDate: string
+  endDate: string
+}
+
+export interface TravelItemResponse {
+  id: string
+  travelId?: string
+  productType: string
+  productId: string
+  productName: string
+  userIds: string[]
+  travelers?: { id: string; name: string; email: string }[]
+  totalPrice: number
+  approvalStatus: string
+  requiresApproval: boolean
+  validationViolations: string[]
+  deadlineDate?: string
+  costCenterId?: string
+  expenseId?: string
+  isEmitted: boolean
+  emittedAt?: string
+  emittedByUserId?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PagedTravelsResult {
+  items: TravelResponse[]
+  totalCount: number
+  page: number
+  pageSize: number
 }
 

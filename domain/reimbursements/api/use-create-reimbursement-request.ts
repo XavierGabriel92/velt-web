@@ -38,6 +38,7 @@ export function useCreateReimbursementRequest() {
   return useMutation({
     mutationFn: createReimbursementRequest,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reimbursement-requests"] })
       queryClient.invalidateQueries({ queryKey: ["reimbursements"] })
       queryClient.invalidateQueries({ queryKey: ["expenses"] })
     },

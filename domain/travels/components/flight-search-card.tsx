@@ -1,6 +1,6 @@
 "use client"
 
-import { Plane, Briefcase } from "lucide-react"
+import { Plane } from "lucide-react"
 import {
   Card,
   CardHeader,
@@ -31,26 +31,7 @@ export function FlightSearchCard({ initialValues }: FlightSearchCardProps) {
           Reserve voos e hospedagem para suas viagens de negócios
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-8">
-        {/* Tabs - largura igual */}
-        <div className="flex p-1 gap-1 bg-[#F7F4F5] rounded-full">
-          <button
-            type="button"
-            className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#1E293B] text-white text-sm font-medium rounded-full"
-          >
-            <Plane className="h-4 w-4" />
-            Buscar Voos
-          </button>
-          <button
-            type="button"
-            disabled
-            className="flex-1 flex items-center justify-center gap-2 py-2 text-[#1E293B] text-sm font-medium rounded-full opacity-60 cursor-not-allowed"
-          >
-            <Briefcase className="h-4 w-4" />
-            Minhas Viagens
-          </button>
-        </div>
-
+      <CardContent>
         <FlightSearchForm initialValues={initialValues} />
       </CardContent>
     </Card>

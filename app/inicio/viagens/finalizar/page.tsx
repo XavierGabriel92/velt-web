@@ -10,6 +10,7 @@ import {
 import { FinishBookingForm } from "@/domain/travels/components/finish-booking-form"
 import { FinishBookingSummary } from "@/domain/travels/components/finish-booking-summary"
 import { useConfirmFlight } from "@/domain/travels/api/use-confirm-flight"
+import { getTravelById } from "@/domain/travels/api/use-travel-by-id"
 import { EXTRA_BAGgage_UNIT_PRICE_BRL } from "@/domain/travels/constants"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -126,12 +127,26 @@ export default function FinalizarReservaPage() {
               : "Sua viagem foi registrada.",
           })
         }
-        router.push("/inicio/viagens")
+        // Priorizar travelReportId da resposta; fallback: buscar pela Travel
+        let reportId = res.travelReportId ?? null
+        if (!reportId && res.travelId) {
+          try {
+            const t = await getTravelById(res.travelId)
+            reportId = t.travelReportId ?? null
+          } catch {
+            // ignora falha no fallback
+          }
+        }
+        if (reportId) {
+          router.replace(`/inicio/viagens/relatorio/${reportId}`)
+        } else {
+          router.replace("/inicio/viagens?tab=minhas")
+        }
       } else {
         toast.success("Próximo passo: pagamento", {
           description: "Em breve você será redirecionado para concluir o pagamento.",
         })
-        router.push("/inicio/viagens")
+        router.replace("/inicio/viagens?tab=minhas")
       }
     } catch (err) {
       toast.error("Erro ao finalizar reserva", {

@@ -56,7 +56,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metrics Cards */}{/*"e"
+        {/* Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Suspense fallback={<MetricCardSkeleton title="Voos este mês" icon={Plane} />}>
             <FlightsMetricCard />
@@ -70,7 +70,7 @@ export default function Dashboard() {
           <Suspense fallback={<MetricCardSkeleton title="Pontos acumulados" icon={Star} />}>
             <PointsMetricCard />
           </Suspense>
-        </div> */}
+        </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
