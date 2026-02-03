@@ -8,17 +8,11 @@ import { Logo } from "@/components/shared/logo"
 import { ChevronRight } from "lucide-react"
 
 export default function SelectCompanyPage() {
-  const { user, selectedCompany, selectCompany, loading, needsCompanySelection, isAuthenticated } =
-    useAuth()
+  const { user, selectedCompany, selectCompany, loading, needsCompanySelection } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (loading) return
-
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
 
     if (!needsCompanySelection && selectedCompany) {
       router.push("/inicio")
@@ -28,7 +22,7 @@ export default function SelectCompanyPage() {
     if (!user?.companies || user.companies.length === 0) {
       router.push("/inicio")
     }
-  }, [loading, isAuthenticated, needsCompanySelection, selectedCompany, user, router])
+  }, [loading, needsCompanySelection, selectedCompany, user, router])
 
   const handleSelectCompany = (company: UserCompanyDto) => {
     selectCompany(company)
@@ -92,3 +86,4 @@ export default function SelectCompanyPage() {
     </div>
   )
 }
+
