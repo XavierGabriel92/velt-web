@@ -12,7 +12,7 @@ async function login(credentials: LoginRequest): Promise<AuthResponse> {
   // NÃO normalizar no frontend - deixar o backend fazer
   // O backend precisa do documento original para normalizar corretamente
 
-  return apiRequestWithoutAuth<AuthResponse>("/auth/login", {
+  return apiRequestWithoutAuth<AuthResponse>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   })

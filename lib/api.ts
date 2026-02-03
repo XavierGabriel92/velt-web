@@ -1,21 +1,20 @@
 import { clearAuth } from "./auth"
 
 /**
- * Função que retorna a URL da API
- * A URL de produção vem da variável de ambiente API_URL
- * No Next.js, variáveis sem NEXT_PUBLIC_ só funcionam no servidor
- * No cliente, precisamos usar NEXT_PUBLIC_API_URL
+ * Função que retorna a URL da API (ex.: http://localhost:5089).
+ * Deve conter o esquema (http/https) e não ter barra no final.
  */
 export function getApiUrl(): string {
-  console.log(process.env);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!apiUrl) {
+  const raw = process.env.NEXT_PUBLIC_API_URL;
+  if (!raw || typeof raw !== "string") {
+    throw new Error("NEXT_PUBLIC_API_URL não está definida. Configure em .env.local (ex.: http://localhost:5089).");
+  }
+  const apiUrl = raw.trim().replace(/\/+$/, "");
+  if (!apiUrl.startsWith("http://") && !apiUrl.startsWith("https://")) {
     throw new Error(
-      "Erro interno"
+      "NEXT_PUBLIC_API_URL deve começar com http:// ou https:// (ex.: http://localhost:5089)."
     );
   }
-
   return apiUrl;
 }
 
@@ -53,25 +52,86 @@ export async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const apiUrl = getApiUrl();
-  const response = await fetch(`${apiUrl}${endpoint}`, {
+  const baseUrl = getApiUrl();
+  const url = `${baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const response = await fetch(url, {
     ...options,
+    credentials: "include",
     headers,
   });
 
   if (!response.ok) {
     if (response.status === 401) {
-      // Token inválido ou expirado - limpar todos os dados de autenticação
       clearAuth();
       if (typeof window !== "undefined") {
         window.location.href = "/login";
       }
       throw new Error("Não autorizado");
     }
+    if (response.status === 404) {
+      throw new Error(
+        `Recurso não encontrado (404): ${url}. Verifique se a API está rodando e se NEXT_PUBLIC_API_URL está correta (ex.: http://localhost:5089).`
+      );
+    }
+    let errorMessage = `Erro na requisição (${response.status}): ${url}`;
+    try {
+      const err = await response.json() as { message?: string; title?: string };
+      if (err?.message) errorMessage = err.message;
+      else if (err?.title) errorMessage = err.title;
+    } catch {
+      // ignorar falha de parse
+    }
+    throw new Error(errorMessage);
+  }
 
-    // Tratamento de erro
-    let errorMessage = "Erro na requisição";
+  return response.json() as T;
+}
 
+/**
+ * Requisição com FormData (ex.: upload de arquivo).
+ * Não define Content-Type para que o browser defina multipart/form-data com boundary.
+ */
+export async function apiRequestFormData<T>(
+  endpoint: string,
+  formData: FormData,
+  method = "POST"
+): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const baseUrl = getApiUrl();
+  const url = `${baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const response = await fetch(url, {
+    method,
+    credentials: "include",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      clearAuth();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      throw new Error("Não autorizado");
+    }
+    if (response.status === 404) {
+      throw new Error(
+        `Recurso não encontrado (404): ${url}. Verifique se a API está rodando e se NEXT_PUBLIC_API_URL está correta.`
+      );
+    }
+    let errorMessage = `Erro na requisição (${response.status}): ${url}`;
+    try {
+      const err = (await response.json()) as { message?: string; title?: string };
+      if (err?.message) errorMessage = err.message;
+      else if (err?.title) errorMessage = err.title;
+    } catch {
+      // ignorar falha de parse
+    }
     throw new Error(errorMessage);
   }
 

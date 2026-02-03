@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { InputMask } from "@/components/ui/input-mask"
 import { useLogin } from "../api/use-login"
+import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -50,6 +51,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
   const router = useRouter()
+  const { refreshFromStorage } = useAuth()
 
   const loginMutation = useLogin()
 
@@ -64,8 +66,8 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       rememberMe: false,
-      cpf: "514.178.960-86",
-      password: "Teste123!",
+      cpf: "",
+      password: "",
     },
   })
 
@@ -82,12 +84,12 @@ export function LoginForm() {
         password: data.password,
       })
 
-      // Mostrar toast de sucesso
+      refreshFromStorage()
+
       toast.success("Login realizado com sucesso!", {
         description: `Bem-vindo, ${response.firstName}!`,
       })
 
-      // Redirecionar após um pequeno delay para o usuário ver o toast
       setTimeout(() => {
         router.push("/inicio")
       }, 500)
@@ -106,13 +108,16 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md bg-gray-100 dark:bg-gray-800">
-      <CardContent className="pt-6">
+    <Card className="w-full max-w-md rounded-3xl border-0 bg-white/80 p-6 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)]">
+      <CardContent className="p-0 pt-0">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* CPF Field */}
           <div className="space-y-2">
-            <Label htmlFor="cpf" className="flex items-center gap-2">
-              <User className="size-4" />
+            <Label
+              htmlFor="cpf"
+              className="flex items-center gap-2 text-sm font-medium text-[#1E293B]"
+            >
+              <User className="size-4 shrink-0 text-[#1E293B]" />
               CPF
             </Label>
             <InputMask
@@ -125,6 +130,7 @@ export function LoginForm() {
               id="cpf"
               placeholder="000.000.000-00"
               aria-invalid={errors.cpf ? "true" : "false"}
+              className="h-12 rounded-2xl border-transparent bg-[#F9FAFB] px-3 text-[#1E293B] placeholder:text-[#64748B] focus-visible:ring-2 focus-visible:ring-primary/50"
             />
             {errors.cpf && (
               <p className="text-sm text-destructive">{errors.cpf.message}</p>
@@ -133,8 +139,11 @@ export function LoginForm() {
 
           {/* Password Field */}
           <div className="space-y-2">
-            <Label htmlFor="password" className="flex items-center gap-2">
-              <Lock className="size-4" />
+            <Label
+              htmlFor="password"
+              className="flex items-center gap-2 text-sm font-medium text-[#1E293B]"
+            >
+              <Lock className="size-4 shrink-0 text-[#1E293B]" />
               Senha
             </Label>
             <div className="relative">
@@ -144,12 +153,12 @@ export function LoginForm() {
                 placeholder="Digite sua senha"
                 {...register("password")}
                 aria-invalid={errors.password ? "true" : "false"}
-                className="pr-10"
+                className="h-12 rounded-2xl border-transparent bg-[#F9FAFB] pr-10 pl-3 text-[#1E293B] placeholder:text-[#64748B] focus-visible:ring-2 focus-visible:ring-primary/50"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6A7282] hover:bg-black/5"
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >
                 {showPassword ? (
@@ -185,7 +194,7 @@ export function LoginForm() {
             </div> */}
             <Link
               href="/reset-password"
-              className="text-sm text-primary hover:underline"
+              className="text-sm font-medium text-primary hover:underline"
             >
               Esqueceu a senha?
             </Link>
@@ -201,18 +210,18 @@ export function LoginForm() {
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full"
+            className="h-12 w-full rounded-2xl shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? "Entrando..." : "Entrar →"}
           </Button>
 
           {/* No Access Message */}
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-center text-sm text-[#64748B]">
             Não tem acesso? Entre em contato com o{" "}
             <Link
               href="#"
-              className="text-primary hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               administrador do sistema
             </Link>
